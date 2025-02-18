@@ -17,7 +17,7 @@ Enable key access:
 
 ```
 az resource update \
-    --resource-group code-to-docs-gen-swedencentral \
+    --resource-group rg-shrabanidutta1-3864_ai \
     --name code-to-docs-openai-swedencentral \
     --resource-type "Microsoft.CognitiveServices/accounts" \
     --set properties.disableLocalAuth=false

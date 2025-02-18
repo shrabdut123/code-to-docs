@@ -13,7 +13,7 @@ terraform {
     resource_group_name   = "rg-shrabanidutta1-3864_ai"
     storage_account_name  = "stshrabanidu776063308980"
     container_name        = "b850f95d-6040-4e01-9d2e-252204deadf8-azureml-blobstore"
-    key                   = "terraform.tfstate"
+    key                   = "container_name.tfstate"
   }
 }
 
