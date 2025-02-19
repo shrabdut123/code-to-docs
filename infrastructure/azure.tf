@@ -1,11 +1,11 @@
 
 resource "azurerm_resource_group" "ai_rg" {
-  name     = "rg-shrabanidutta1-3864_ai"
+  name     = "code-to-docs-gen"
   location = "Sweden Central"
 }
 
 resource "azurerm_cognitive_account" "ai_cogacc" {
-  name                               = "code-to-docs-openai"
+  name                               = "code-to-docs-gen-openai"
   location                           = azurerm_resource_group.ai_rg.location
   resource_group_name                = azurerm_resource_group.ai_rg.name
   kind                               = "OpenAI"

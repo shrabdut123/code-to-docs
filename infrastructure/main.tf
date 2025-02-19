@@ -10,9 +10,9 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name   = "rg-shrabanidutta1-3864_ai"
-    storage_account_name  = "stshrabanidu776063308980"
-    container_name        = "b850f95d-6040-4e01-9d2e-252204deadf8-azureml-blobstore"
+    resource_group_name   = "code-to-docs-gen"
+    storage_account_name  = "codetodocsstorage"
+    container_name        = "codetodocscontainer"
     key                   = "container_name.tfstate"
   }
 }

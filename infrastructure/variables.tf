@@ -19,5 +19,5 @@ variable "location" {
 variable "custom_subdomain_name" {
   description = "Domain prefix added to the API endpoint"
   type        = string
-  default     = "code-to-docs-openai" 
+  default     = "code-to-docs-gen-openai" 
 }
