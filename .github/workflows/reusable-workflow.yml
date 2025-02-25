@@ -7,6 +7,11 @@ on:
         required: true
         type: string
   workflow_dispatch:
+    inputs:
+      src-folder:
+        description: 'Source folder of the calling repository'
+        required: true
+        type: string
 permissions:
   contents: "read"
   id-token: "write"
