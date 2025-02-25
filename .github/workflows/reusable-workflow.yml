@@ -19,6 +19,8 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+      - name: List Files in Working Directory
+        run: ls -la src
       - name: Run Python script
         env:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}  # Pass the secret to the script
