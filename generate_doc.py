@@ -18,7 +18,9 @@ openai.api_base, openai.api_key, openai.api_type, openai.api_version = (
     AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, "azure", "2024-05-01-preview"
 )
 
-SRC_FOLDER, CACHE_FILE = "src", "cache.json"
+CACHE_FILE = "cache.json"
+SRC_FOLDER = os.getenv("SRC_FOLDER", "src")
+
 MAX_LINES, MAX_CHARS = 1000, 4000  # Truncate files to prevent exceeding 8K token limit
 
 # Load cache if available
