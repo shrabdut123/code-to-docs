@@ -1,6 +1,10 @@
 name: Reusable Workflow
 on:
   workflow_call:
+permissions:
+  contents: "read"
+  id-token: "write"
+  actions:  "read"
 jobs:
   run-script:
     runs-on: ubuntu-latest
