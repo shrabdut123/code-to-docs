@@ -1,6 +1,11 @@
 name: Reusable Workflow
 on:
   workflow_call:
+    inputs:
+      src-folder:
+        description: 'Source folder of the calling repository'
+        required: true
+        type: string
   workflow_dispatch:
 permissions:
   contents: "read"
@@ -24,5 +29,6 @@ jobs:
       - name: Run Python script
         env:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}  # Pass the secret to the script
+          SRC_FOLDER: ${{ inputs.src-folder}}
         run: |
           python generate_doc.py
