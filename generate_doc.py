@@ -77,6 +77,12 @@ def process_file(file_path):
         return file_path
     return None
 
+def list_files_in_src_folder():
+    """List all files in the SRC_FOLDER."""
+    for dirpath, _, filenames in os.walk(SRC_FOLDER):
+        for file in filenames:
+            print(os.path.join(dirpath, file))
+
 def traverse_and_update_files():
     valid_files = [
         os.path.join(dirpath, file) for dirpath, _, filenames in os.walk(SRC_FOLDER)
@@ -97,5 +103,6 @@ def traverse_and_update_files():
 
 if __name__ == "__main__":
     print("Starting documentation generation...")
+    list_files_in_src_folder()
     updated_files = traverse_and_update_files()
     print(f"Updated {len(updated_files)} files.") if updated_files else print("No files updated.")
