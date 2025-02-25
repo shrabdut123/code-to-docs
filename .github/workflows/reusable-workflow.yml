@@ -20,5 +20,7 @@ jobs:
         run: |
           pip install -r requirements.txt
       - name: Run Python script
+        env:
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}  # Pass the secret to the script
         run: |
           python generate_doc.py
