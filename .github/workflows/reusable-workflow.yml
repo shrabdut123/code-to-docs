@@ -20,8 +20,12 @@ jobs:
   run-script:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo A
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Print Source Folder Path
+        run: echo "Source Folder Path ${{ inputs.src-folder }}"
+      - name: Debug Repository Structure
+        run: ls -R ${{ github.workspace }}
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
