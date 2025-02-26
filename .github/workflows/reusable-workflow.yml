@@ -42,6 +42,12 @@ jobs:
           repository: ${{ inputs.repo-name }}
           ref: ${{ inputs.branch-name }}
           token: ${{ secrets.PAT_TOKEN }}
+          path: repo-caller
+      - name: Checkout Repository B (where script is located)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}  # Use PAT for private access
+          path: repo-callee  # Path to checkout repo B in workspace
 
       - name: Print Source Folder Path
         run: echo "Source Folder Path ${{ inputs.src-folder }}"
@@ -54,10 +60,10 @@ jobs:
           python-version: '3.9'
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r repo-callee/requirements.txt
       - name: Run Python script
         env:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}  # Pass the secret to the script
-          SRC_FOLDER: ${{ inputs.src-folder}}
+          SRC_FOLDER: repo-caller/${{ inputs.src-folder}}
         run: |
-          python generate_doc.py
+          python repo-callee/generate_doc.py
