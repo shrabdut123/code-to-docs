@@ -78,7 +78,7 @@ def process_file(file_path):
     return None
 
 def list_files_in_src_folder():
-    """List all files in the SRC_FOLDER."""
+    print("Starting listing files...")
     for dirpath, _, filenames in os.walk(SRC_FOLDER):
         for file in filenames:
             print(os.path.join(dirpath, file))
