@@ -69,6 +69,6 @@ jobs:
       - name: Run Python script
         env:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}  # Pass the secret to the script
-          SRC_FOLDER: repo-caller/${{ inputs.src-folder}}
+          SRC_FOLDER: ${{ github.workspace }}/repo-caller/${{ inputs.src-folder}}
         run: |
           python repo-callee/generate_doc.py
