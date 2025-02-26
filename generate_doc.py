@@ -78,10 +78,24 @@ def process_file(file_path):
     return None
 
 def list_files_in_src_folder():
-    print("Starting listing files...")
-    for dirpath, _, filenames in os.walk(SRC_FOLDER):
-        for file in filenames:
-            print(os.path.join(dirpath, file))
+    print(f"Starting to walk through the folder: {SRC_FOLDER}")
+
+    if not os.path.exists(SRC_FOLDER):
+        print(f"Error: The source folder '{SRC_FOLDER}' does not exist.")
+    else:
+        for dirpath, subdirs, filenames in os.walk(SRC_FOLDER):
+            print(f"\n📂 Entering Directory: {dirpath}")
+            print(f"📁 Subdirectories: {subdirs}")
+            print(f"📄 Files Found: {filenames}")
+
+            if not filenames:
+                print(f"⚠️ No files found in {dirpath}")
+
+            for file in filenames:
+                full_path = os.path.join(dirpath, file)
+                print(f"✅ Processing File: {full_path}")
+
+    print("Traversal completed.")
 
 def traverse_and_update_files():
     valid_files = [
