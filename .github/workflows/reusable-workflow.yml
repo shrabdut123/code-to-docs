@@ -77,17 +77,17 @@ jobs:
           cd repo-caller
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git checkout -b update-caller-repo-files-${GITHUB_SHA} # Create a new branch for changes
+          git checkout -b update-caller-repo-files-${uuidgen} # Create a new branch for changes
           git add . # Add modified files
           git commit -m "Modify files in src folder from script"
-          git push --set-upstream origin update-caller-repo-files-${GITHUB_SHA} # Push the new branch to Repository A
+          git push --set-upstream origin update-caller-repo-files-${uuidgen} # Push the new branch to Repository A
 
       - name: Create Pull Request in Caller repository
         run: |
             curl -X POST -H "Authorization: token ${{ inputs.token }}" \
             -d '{
                   "title": "Update files in src folder",
-                  "head": "update-caller-repo-files-${GITHUB_SHA}",
+                  "head": "update-caller-repo-files-${uuidgen}",
                   "base": "main",
                   "body": "Automated pull request to update files in src folder from script."
                 }' \
