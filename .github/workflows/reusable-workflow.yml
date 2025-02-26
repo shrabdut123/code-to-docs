@@ -6,6 +6,14 @@ on:
         description: 'Source folder of the calling repository'
         required: true
         type: string
+      repo-name:
+        description: 'Name of the calling repository'
+        required: true
+        type: string
+      branch-name:
+        description: 'Branch of the calling repository'
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       src-folder:
@@ -20,10 +28,16 @@ jobs:
   run-script:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout Caller Repository
         uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repo-name }}
+          ref: ${{ inputs.branch-name }}
+          token: ${{ secrets.PAT_TOKEN }}
+
       - name: Print Source Folder Path
         run: echo "Source Folder Path ${{ inputs.src-folder }}"
+
       - name: Debug Repository Structure
         run: ls -R ${{ github.workspace }}
       - name: Set up Python
