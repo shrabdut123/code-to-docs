@@ -35,9 +35,9 @@ on:
         required: true
         type: string  # Ensure token is defined as a string
 permissions:
-  contents: "read"
-  id-token: "write"
-  actions:  "read"
+  contents: read
+  id-token: write
+  actions:  read
 jobs:
   run-script:
     runs-on: ubuntu-latest
