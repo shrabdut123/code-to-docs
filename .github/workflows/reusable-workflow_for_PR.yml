@@ -1,4 +1,4 @@
-name: Reusable Workflow to run pull request
+name: Reusable Workflow for PR
 on:
   workflow_call:
     inputs:
@@ -16,7 +16,7 @@ on:
         type: string
       token:
         required: true
-        type: string  # Ensure token is defined as a string
+        type: string
   workflow_dispatch:
     inputs:
       src-folder:
@@ -33,14 +33,13 @@ on:
         type: string
       token:
         required: true
-        type: string  # Ensure token is defined as a string
+        type: string
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      id-token: write
+      contents: write
       pull-requests: write
     steps:
       - name: Checkout Caller Repository
@@ -50,50 +49,65 @@ jobs:
           ref: ${{ inputs.branch-name }}
           token: ${{ inputs.token }}
           path: repo-caller
+
       - name: Checkout Callee Repository
         uses: actions/checkout@v4
         with:
           token: ${{ inputs.token }}
           path: repo-callee
+
       - name: Print Source Folder Path
         run: echo "Source Folder Path ${{ inputs.src-folder }}"
 
       - name: Debug Repository Structure
         run: ls -R ${{ github.workspace }}
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
+
       - name: Install dependencies
         run: |
           pip install -r repo-callee/requirements.txt
+
       - name: Run Python script
         env:
-          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}  # Pass the secret to the script
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           SRC_FOLDER: ${{ github.workspace }}/repo-caller/${{ inputs.src-folder}}
         run: |
           python repo-callee/generate_doc.py
-      - name: Commit and push changes to the same branch
+
+      - name: Commit and push changes to the same branch or create a new PR
         run: |
           cd repo-caller
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add . # Add modified files
+          git add .
           if git diff --cached --quiet; then
             echo "No changes detected, skipping commit."
           else
             git commit -m "Modify files in src folder from script"
             git push origin ${{ inputs.branch-name }}
           fi
-          
-      - name: Add comment to the existing PR (if applicable)
-        run: |
+
           PR_NUMBER=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
             "https://api.github.com/repos/${{ inputs.repo-name }}/pulls?state=open" | \
             jq -r ".[] | select(.head.ref == \"${{ inputs.branch-name }}\") | .number")
           
           if [ -n "$PR_NUMBER" ]; then
+            echo "Pull request already exists. Adding a comment."
             curl -X POST -H "Authorization: token ${{ inputs.token }}" \
               -d '{"body": "Automated changes have been pushed to this branch."}' \
               "https://api.github.com/repos/${{ inputs.repo-name }}/issues/$PR_NUMBER/comments"
+          else
+            echo "No existing PR found. Creating a new one."
+            curl -X POST -H "Authorization: token ${{ inputs.token }}" \
+              -d '{
+                    "title": "Update files in src folder",
+                    "head": "${{ inputs.branch-name }}",
+                    "base": "main",
+                    "body": "Automated pull request to update files in src folder from script."
+                  }' \
+              "https://api.github.com/repos/${{ inputs.repo-name }}/pulls"
           fi
