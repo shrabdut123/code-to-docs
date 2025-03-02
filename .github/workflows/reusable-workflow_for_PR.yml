@@ -1,0 +1,99 @@
+name: Reusable Workflow to run pull request
+on:
+  workflow_call:
+    inputs:
+      src-folder:
+        description: 'Source folder of the calling repository'
+        required: true
+        type: string
+      repo-name:
+        description: 'Name of the calling repository'
+        required: true
+        type: string
+      branch-name:
+        description: 'Branch of the calling repository'
+        required: true
+        type: string
+      token:
+        required: true
+        type: string  # Ensure token is defined as a string
+  workflow_dispatch:
+    inputs:
+      src-folder:
+        description: 'Source folder of the calling repository'
+        required: true
+        type: string
+      repo-name:
+        description: 'Name of the calling repository'
+        required: true
+        type: string
+      branch-name:
+        description: 'Branch of the calling repository'
+        required: true
+        type: string
+      token:
+        required: true
+        type: string  # Ensure token is defined as a string
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    steps:
+      - name: Checkout Caller Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repo-name }}
+          ref: ${{ inputs.branch-name }}
+          token: ${{ inputs.token }}
+          path: repo-caller
+      - name: Checkout Callee Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ inputs.token }}
+          path: repo-callee
+      - name: Print Source Folder Path
+        run: echo "Source Folder Path ${{ inputs.src-folder }}"
+
+      - name: Debug Repository Structure
+        run: ls -R ${{ github.workspace }}
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          pip install -r repo-callee/requirements.txt
+      - name: Run Python script
+        env:
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}  # Pass the secret to the script
+          SRC_FOLDER: ${{ github.workspace }}/repo-caller/${{ inputs.src-folder}}
+        run: |
+          python repo-callee/generate_doc.py
+      - name: Commit and push changes to the same branch
+        run: |
+          cd repo-caller
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add . # Add modified files
+          if git diff --cached --quiet; then
+            echo "No changes detected, skipping commit."
+          else
+            git commit -m "Modify files in src folder from script"
+            git push origin ${{ inputs.branch-name }}
+          fi
+          
+      - name: Add comment to the existing PR (if applicable)
+        run: |
+          PR_NUMBER=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
+            "https://api.github.com/repos/${{ inputs.repo-name }}/pulls?state=open" | \
+            jq -r ".[] | select(.head.ref == \"${{ inputs.branch-name }}\") | .number")
+          
+          if [ -n "$PR_NUMBER" ]; then
+            curl -X POST -H "Authorization: token ${{ inputs.token }}" \
+              -d '{"body": "Automated changes have been pushed to this branch."}' \
+              "https://api.github.com/repos/${{ inputs.repo-name }}/issues/$PR_NUMBER/comments"
+          fi
