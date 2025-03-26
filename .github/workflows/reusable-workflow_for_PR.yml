@@ -88,7 +88,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes detected, skipping commit."
           else
-            git commit -m "Modify files in src folder from script"
+            git commit -m "Auto-generated documentation added"
             git push origin ${{ inputs.branch-name }}
           fi
 
