@@ -1,4 +1,4 @@
-name: Reusable Workflow for PR
+name: Reusable Workflow - PR
 on:
   workflow_call:
     inputs:
