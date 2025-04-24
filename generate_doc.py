@@ -53,7 +53,7 @@ def generate_documentation(code):
             messages=[{
                 "role": "user",
                 "content": f"""
-                    For the following JavaScript code, insert documentation **immediately above each function definition**.
+                    For the following code, insert documentation **immediately above each function definition**.
 
                         - The documentation should describe the **purpose** of the function, and summarize how it works.
                         - Keep each comment directly above the corresponding function.
