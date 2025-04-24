@@ -52,16 +52,19 @@ def generate_documentation(code):
             engine=DEPLOYMENT_NAME,
             messages=[{
                 "role": "user",
-                "content": f"""Add short, high-level documentation comments above each function in the following code.
+                "content": f"""
+                    For the following JavaScript code, insert documentation **immediately above each function definition**.
 
-                - Focus on describing the purpose of the function.
-                - Do not include obvious implementation details.
-                - Keep comments brief and clear.
+                        - The documentation should describe the **purpose** of the function, and summarize how it works.
+                        - Keep each comment directly above the corresponding function.
+                        - Do **not** place all comments at the top of the file.
+                        - Use concise but informative natural language.
+                        - Use `/** ... */` style for documentation.
 
-                ```js
-                {truncated_code}
-                ```"""
-            }],
+                    ```js
+                        {truncated_code}
+                    ```"""
+                    }],
             max_tokens=500, temperature=0, top_p=1.0,
         )
         print(f"Model Response Time: {time.time() - start_time:.2f} seconds")
