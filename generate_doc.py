@@ -27,6 +27,7 @@ MAX_LINES, MAX_CHARS = 1000, 4000  # Truncate files to prevent exceeding 8K toke
 CACHE = json.load(open(CACHE_FILE, "r", encoding="utf-8")) if os.path.exists(CACHE_FILE) else {}
 
 def get_code_hash(code):
+    """Generate a hash for the given code."""
     return hashlib.md5(code.encode()).hexdigest()
 
 def truncate_code(code):
@@ -49,7 +50,18 @@ def generate_documentation(code):
     try:
         response = openai.ChatCompletion.create(
             engine=DEPLOYMENT_NAME,
-            messages=[{"role": "user", "content": f"Generate documentation for:\n\n```js\n{truncated_code}\n```"}],
+            messages=[{
+                "role": "user",
+                "content": f"""Add short, high-level documentation comments above each function in the following code.
+
+                - Focus on describing the purpose of the function.
+                - Do not include obvious implementation details.
+                - Keep comments brief and clear.
+
+                ```js
+                {truncated_code}
+                ```"""
+            }],
             max_tokens=500, temperature=0, top_p=1.0,
         )
         print(f"Model Response Time: {time.time() - start_time:.2f} seconds")
@@ -60,6 +72,7 @@ def generate_documentation(code):
         return None
 
 def process_file(file_path):
+    """Process a single file to generate and update documentation."""
     with open(file_path, "r", encoding="utf-8") as f:
         original_content = f.read().strip()
     if not original_content:
@@ -78,6 +91,7 @@ def process_file(file_path):
     return None
 
 def list_files_in_src_folder():
+    """List all files in the source folder."""
     print(f"Starting to walk through the folder: {SRC_FOLDER}")
 
     if not os.path.exists(SRC_FOLDER):
@@ -98,6 +112,7 @@ def list_files_in_src_folder():
     print("Traversal completed.")
 
 def traverse_and_update_files():
+    """Traverse the source folder and update files with generated documentation."""
     valid_files = [
         os.path.join(dirpath, file) for dirpath, _, filenames in os.walk(SRC_FOLDER)
         for file in filenames if file.endswith((".js", ".ts")) and not file.endswith((".test.js", ".test.ts", ".json"))
