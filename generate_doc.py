@@ -50,18 +50,7 @@ def generate_documentation(code):
     try:
         response = openai.ChatCompletion.create(
             engine=DEPLOYMENT_NAME,
-            messages=[{
-                "role": "user",
-                "content": f"""
-                    For the {truncated_code} code, insert documentation **immediately above each function definition**.
-
-                        - The documentation should describe the **purpose** of the function, and summarize how it works.
-                        - Keep each comment directly above the corresponding function.
-                        - Do **not** place all comments at the top of the file.
-                        - Do **not** add comments for any other code that is not a function.
-                    Please ensure the documentation is clear and concise, and that it follows best practices for code documentation.
-                    """
-                    }],
+            messages=[{"role": "user", "content": f"Generate documentation for:\n\n```js\n{truncated_code}\n```"}],
             max_tokens=500, temperature=0, top_p=1.0,
         )
         print(f"Model Response Time: {time.time() - start_time:.2f} seconds")
