@@ -51,11 +51,7 @@ def generate_documentation(code):
         response = openai.ChatCompletion.create(
             engine=DEPLOYMENT_NAME,
             messages=[{"role": "user", "content": f"""
-    Generates structured documentation for a given function using GPT-4-O.
-    """
-    # Documentation template with repository context awareness
-    doc_template = """
-    Convert the following function into natural language documentation using this template:
+    Generates structured natural language documentation for a given function using GPT-4-O using this template:
 
     ---
     ### **Function Name: `<function_name>`**
