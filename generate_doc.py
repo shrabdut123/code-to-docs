@@ -50,8 +50,24 @@ def generate_documentation(code):
     try:
         response = openai.ChatCompletion.create(
             engine=DEPLOYMENT_NAME,
-            messages=[{"role": "user", "content": f"Generate documentation for:\n\n```js\n{truncated_code}\n```"}],
-            max_tokens=500, temperature=0, top_p=1.0,
+            messages=[{"role": "user", "content": f"""
+    Generates structured natural language documentation for a given function using GPT-4-O using this template:
+
+    ---
+    ### **Function Name: `<function_name>`**
+    **📌 Description:**  
+    A detailed explanation of what the function does, adding necessary details from other files where nested functions or helper methods are called.
+
+    ---
+
+    Here is the function:
+
+    ```{code}
+    ```
+
+    Use the above template to generate structured documentation while considering the repository-wide context and function dependencies.
+    """}],
+            max_tokens=5000, temperature=0, top_p=1.0,
         )
         print(f"Model Response Time: {time.time() - start_time:.2f} seconds")
         CACHE[code_hash] = response["choices"][0]["message"]["content"]
