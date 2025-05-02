@@ -41,9 +41,9 @@ def extract_existing_code(content):
     return re.sub(r"/\*.*?\*/\s*", "", content, flags=re.DOTALL)  # Remove all `/* ... */` blocks
 
 def count_tokens(messages, model="gpt-4"):
+    """Count the number of tokens in the given messages."""
     enc = tiktoken.encoding_for_model(model)
     return sum(len(enc.encode(msg["content"])) for msg in messages)
-
 
 def generate_documentation(code):
     """Generate documentation with token and rate-limit handling."""
@@ -51,6 +51,7 @@ def generate_documentation(code):
     code_hash = get_code_hash(truncated_code)
     if code_hash in CACHE:
         return CACHE[code_hash]
+
     user_prompt = f"""
     ### **Function Name: `<function_name>`**
     **📌 Description:**
@@ -67,25 +68,25 @@ def generate_documentation(code):
     start_time = time.time()
 
     for attempt in range(5):
-    try:
-        response = openai.ChatCompletion.create(
-            engine=DEPLOYMENT_NAME,
-            messages=messages,
-            max_tokens=max_tokens,
-            temperature=0,
-            top_p=1.0,
-        )
-        print(f"Model Response Time: {time.time() - start_time:.2f} seconds")
-        content = response["choices"][0]["message"]["content"]
-        CACHE[code_hash] = content
-        return content
-    except openai.error.RateLimitError:
-        wait = 2 ** attempt
-        print(f"Rate limit hit. Retrying in {wait} seconds...")
-        time.sleep(wait)
-    except Exception as e:
-        print(f"Error: {e}")
-        return None
+        try:
+            response = openai.ChatCompletion.create(
+                engine=DEPLOYMENT_NAME,
+                messages=messages,
+                max_tokens=max_tokens,
+                temperature=0,
+                top_p=1.0,
+            )
+            print(f"Model Response Time: {time.time() - start_time:.2f} seconds")
+            content = response["choices"][0]["message"]["content"]
+            CACHE[code_hash] = content
+            return content
+        except openai.error.RateLimitError:
+            wait = 2 ** attempt
+            print(f"Rate limit hit. Retrying in {wait} seconds...")
+            time.sleep(wait)
+        except Exception as e:
+            print(f"Error: {e}")
+            return None
 
     print("Failed after multiple retries.")
     return None
