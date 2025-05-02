@@ -6,6 +6,7 @@ import json
 import time
 import re  # For replacing existing documentation
 import tiktoken  # NEW
+import random
 
 MAX_CONTEXT = 8192
 
