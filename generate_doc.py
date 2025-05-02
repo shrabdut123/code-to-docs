@@ -59,7 +59,7 @@ def generate_documentation(code):
             ```{code}
             ```
             """}],
-            max_tokens=5000, temperature=0, top_p=1.0,
+            max_tokens=3500, temperature=0, top_p=1.0,
         )
         print(f"Model Response Time: {time.time() - start_time:.2f} seconds")
         CACHE[code_hash] = response["choices"][0]["message"]["content"]
