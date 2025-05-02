@@ -69,7 +69,8 @@ def generate_documentation(code):
     max_tokens = max(500, min(max_tokens, 5000))
     start_time = time.time()
 
-    for attempt in range(5):
+    MAX_RETRIES = 8
+    for attempt in range(MAX_RETRIES):
         try:
             response = openai.ChatCompletion.create(
                 engine=DEPLOYMENT_NAME,
@@ -83,12 +84,15 @@ def generate_documentation(code):
             CACHE[code_hash] = content
             return content
         except openai.error.RateLimitError:
-            wait = 2 ** attempt
-            print(f"Rate limit hit. Retrying in {wait} seconds...")
+            wait = 2 ** attempt + random.uniform(0, 1)
+            print(f"Rate limit hit. Retrying in {wait:.2f} seconds...")
             time.sleep(wait)
+        except openai.error.Timeout as e:
+            print(f"Timeout: {e}. Retrying...")
+            time.sleep(2)
         except Exception as e:
-            print(f"Error: {e}")
-            return None
+            print(f"Unexpected error: {e}")
+            break
 
     print("Failed after multiple retries.")
     return None
@@ -104,6 +108,7 @@ def process_file(file_path):
     clean_code = extract_existing_code(original_content)
     
     documentation = generate_documentation(clean_code)
+    time.sleep(1)  # Prevent overwhelming the API
     if documentation:
         updated_code = f"/*\n{documentation}\n*/\n{clean_code}"
         with open(file_path, "w", encoding="utf-8") as f:
