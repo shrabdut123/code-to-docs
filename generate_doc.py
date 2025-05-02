@@ -60,8 +60,8 @@ def generate_documentation(code):
     {truncated_code}
     ```
     """
-    messages = [{“role”: “user”, “content”: user_prompt}]
-    used_tokens = count_tokens(messages, model=“gpt-4”)
+    messages = [{"role": "user", "content": user_prompt}]
+    used_tokens = count_tokens(messages, model="gpt-4")
     max_tokens = MAX_CONTEXT - used_tokens
     max_tokens = max(500, min(max_tokens, 5000))
     start_time = time.time()
