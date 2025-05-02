@@ -5,6 +5,7 @@ import hashlib
 import json
 import time
 import re  # For replacing existing documentation
+import tiktoken  # NEW
 
 # Azure OpenAI API Configuration
 AZURE_OPENAI_ENDPOINT = "https://code-to-docs-gen-openai.openai.azure.com/"
@@ -39,34 +40,55 @@ def extract_existing_code(content):
     """Remove all existing documentation blocks."""
     return re.sub(r"/\*.*?\*/\s*", "", content, flags=re.DOTALL)  # Remove all `/* ... */` blocks
 
+def count_tokens(messages, model="gpt-4"):
+    enc = tiktoken.encoding_for_model(model)
+    return sum(len(enc.encode(msg["content"])) for msg in messages)
+
+
 def generate_documentation(code):
-    """Generate documentation and cache results, ensuring code fits within model limits."""
+    """Generate documentation with token and rate-limit handling."""
     truncated_code = truncate_code(code)
     code_hash = get_code_hash(truncated_code)
     if code_hash in CACHE:
         return CACHE[code_hash]
-
+    user_prompt = f"""
+    ### **Function Name: `<function_name>`**
+    **📌 Description:**
+    Explain what the function does, including details from any helper methods it uses.
+    Function code:
+    ```
+    {truncated_code}
+    ```
+    """
+    messages = [{“role”: “user”, “content”: user_prompt}]
+    used_tokens = count_tokens(messages, model=“gpt-4”)
+    max_tokens = MAX_CONTEXT - used_tokens
+    max_tokens = max(500, min(max_tokens, 5000))
     start_time = time.time()
+
+    for attempt in range(5):
     try:
         response = openai.ChatCompletion.create(
             engine=DEPLOYMENT_NAME,
-            messages=[{"role": "user", "content": f"""
-
-            ### **Function Name: `<function_name>`**
-            **📌 Description:**
-            Explain what the function does, including details from any helper methods it uses.
-            Function code:
-            ```{code}
-            ```
-            """}],
-            max_tokens=3500, temperature=0, top_p=1.0,
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=0,
+            top_p=1.0,
         )
         print(f"Model Response Time: {time.time() - start_time:.2f} seconds")
-        CACHE[code_hash] = response["choices"][0]["message"]["content"]
-        return CACHE[code_hash]
+        content = response["choices"][0]["message"]["content"]
+        CACHE[code_hash] = content
+        return content
+    except openai.error.RateLimitError:
+        wait = 2 ** attempt
+        print(f"Rate limit hit. Retrying in {wait} seconds...")
+        time.sleep(wait)
     except Exception as e:
         print(f"Error: {e}")
         return None
+
+    print("Failed after multiple retries.")
+    return None
 
 def process_file(file_path):
     """Process a single file to generate and update documentation."""
