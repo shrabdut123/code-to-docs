@@ -7,6 +7,8 @@ import time
 import re  # For replacing existing documentation
 import tiktoken  # NEW
 
+MAX_CONTEXT = 8192
+
 # Azure OpenAI API Configuration
 AZURE_OPENAI_ENDPOINT = "https://code-to-docs-gen-openai.openai.azure.com/"
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
